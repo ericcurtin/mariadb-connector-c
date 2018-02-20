@@ -2,16 +2,14 @@
 
 d_exe() {
   local user=$1
-  local name=$2
   local cmd=$3
 
   docker exec -u "$user" "$name" /bin/bash -c "$cmd"
 }
 
 d_run() {
-  local name=$1
-  local img=$2
-  local cmd=$3
+  local img=$1
+  local cmd=$2
 
   local user=$(id -un)
   local gid=$(id -g)
@@ -20,9 +18,9 @@ d_run() {
   docker rm -f "$name" || true
   docker run --privileged -d -v /tmp:/tmp -v "/home/$user:/home/$user" -h\
          "$name" --name "$name" "$img" init
-  d_exe "root" "$name"\
+  d_exe "root"\
     "groupadd -g $gid $group && useradd -M -s /bin/bash -g $gid -u $UID $user"
-  d_exe "$UID" "$name" "cd $PWD && $cmd"
+  d_exe "$UID" "cd $PWD && $cmd"
   docker rm -f "$name" || true
 }
 
@@ -38,9 +36,10 @@ d_compile() {
   local cmd="$pre && export CC=$cc && export CXX=$cxx && rm -rf bin &&\
     mkdir bin && cd bin && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr .. &&\
     make -j5 VERBOSE=1 && make package &&\
-    mv mariadb-connector-c-3.0.3-linux-x86_64.tar.gz ../packages/"
+    mv mariadb-connector-c-3.0.3-*.tar.gz\
+    ../packages/mariadb-connector-c-3.0.3-$name.tar.gz"
 
-  d_run "$name" "$doc" "$cmd"
+  d_run "$doc" "$cmd"
   docker rm -f "$name" || true
 }
 
