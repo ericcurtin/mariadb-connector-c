@@ -1,0 +1,19 @@
+#!/bin/bash
+
+while getopts "imps" o; do
+  case "${o}" in
+    i)
+        printf "i386\n"
+        ;;
+    m)
+        printf "i686\n"
+        ;;
+    p)
+        printf "i686\n"
+        ;;
+    s)
+        printf "Linux\n"
+        ;;
+    esac
+done
+

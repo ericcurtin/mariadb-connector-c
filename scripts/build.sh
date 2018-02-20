@@ -37,7 +37,8 @@ d_compile() {
 
   local cmd="$pre && export CC=$cc && export CXX=$cxx && rm -rf bin &&\
     mkdir bin && cd bin && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr .. &&\
-    make -j3 && make package"
+    make -j5 VERBOSE=1 && make package &&\
+    mv mariadb-connector-c-3.0.3-linux-x86_64.tar.gz ../packages/"
 
   d_run "$name" "$doc" "$cmd"
   docker rm -f "$name" || true
@@ -47,6 +48,8 @@ set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR/.."
+
+mkdir -p packages
 
 for doc in $(dockerfiles/docker.sh list); do
   name=$(printf "$doc" | sed "s#curtine/##" | sed "s/:/-/")
