@@ -5,6 +5,6 @@ ENV https_proxy=$https_proxy
 ENV ftp_proxy=$ftp_proxy
 
 RUN apt update -y &&\
-    apt install -y cmake g++ lsb-release &&\
+    apt install -y cmake gcc lsb-release &&\
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

@@ -6,7 +6,7 @@ ENV ftp_proxy=$ftp_proxy
 
 RUN yum install -y epel-release &&\
     yum update -y &&\
-    yum install -y upstart cmake make gcc-c++ &&\
+    yum install -y upstart cmake make gcc &&\
     yum clean all &&\
     rm -rf /tmp/* /var/tmp/* /var/cache/yum
 
