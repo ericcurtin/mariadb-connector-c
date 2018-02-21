@@ -5,7 +5,7 @@ d_exe() {
   local name=$2
   local cmd=$3
 
-  docker exec -u "$user" "$name" /bin/bash -c "$cmd"
+  docker exec -u "$user" "$name" /bin/bash -c "cd $PWD && $cmd"
 }
 
 d_run() {
@@ -22,8 +22,7 @@ d_run() {
          "$name" --name "$name" "$img" init
   d_exe "root" "$name"\
     "groupadd -g $gid $group && useradd -M -s /bin/bash -g $gid -u $UID $user"
-  d_exe "$UID" "$name" "cd $PWD && $cmd"
-  docker rm -f "$name" || true
+  d_exe "$UID" "$name" "$cmd"
 }
 
 d_compile() {
@@ -41,14 +40,15 @@ d_compile() {
     local build_type="-DCMAKE_BUILD_TYPE=Release"
   fi
 
-  local cmd="$pre && export CC=$cc && export CXX=$cxx && rm -rf bin &&\
-    mkdir bin && cd bin &&\
+  local cmd="$pre && export CC=$cc && export CXX=$cxx && mkdir bin && cd bin &&\
     cmake $build_type -DCMAKE_INSTALL_PREFIX:PATH=/usr .. &&\
-    make -j5 VERBOSE=1 && make package &&\
-    mv mariadb-connector-c-3.0.3-*.tar.gz\
-    ../packages/mariadb-connector-c-3.0.3-$platform.tar.gz"
+    make -j5 VERBOSE=1"
 
   d_run "$name" "$doc" "$cmd"
+  d_exe "root" "$name" "cd bin && export CC=$cc && export CXX=$cxx &&\
+    make package && mv mariadb-connector-c-3.0.3-*.tar.gz\
+    ../packages/mariadb-connector-c-3.0.3-$platform.tar.gz && cd .. &&\
+    rm -rf bin"
   docker rm -f "$name" || true
 }
 
